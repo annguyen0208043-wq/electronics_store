@@ -1,0 +1,306 @@
+@model TechShop.ViewModels.ProductViewModel
+@{
+    ViewData["Title"] = Model.Ten;
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+    }
+</div>
+<div class="card">
+    <div class="row g-0">
+        <!-- Phần ảnh và thông tin cơ bản -->
+        <div class="col-md-8">
+            <div class="card-body">
+                @if (Model.HinhAnh != null && Model.HinhAnh.Any())
+                {
+                    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            @for (int i = 0; i < Model.HinhAnh.Count; i++)
+                            {
+                                <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="@i"
+                                    class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")"
+                                    aria-label="Slide @(i + 1)"></button>
+                            }
+                        </div>
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.HinhAnh.Count; i++)
+                            {
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <div class="position-relative">
+                                        <img src="/images/@Model.HinhAnh[i]" class="d-block w-100" alt="@Model.Ten"
+                                            style="max-height: 400px; object-fit: contain; width: auto; margin: 0 auto;"
+                                            loading="lazy">
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <img src="/images/default.jpg" class="card-img-top" alt="@Model.Ten"
+                        style="max-height: 400px; object-fit: contain; width: auto; margin: 0 auto;" loading="lazy">
+                }
+            </div>
+        </div>
+        <!-- Thông tin cơ bản -->
+        <div class="col-md-4">
+            <div class="card-body">
+                <h5 class="card-title">@Model.Ten</h5>
+                <h6 class="text-primary mb-3">Thông tin cơ bản</h6>
+                <dl class="row">
+                    <dt class="col-sm-4">Mã sản phẩm</dt>
+                    <dd class="col-sm-8">@Model.Id</dd>
+                    <dt class="col-sm-4">Giá</dt>
+                    <dd class="col-sm-8">@Model.Gia.ToString("N0").Replace(",", ".") VNĐ</dd>
+                    <dt class="col-sm-4">Loại</dt>
+                    <dd class="col-sm-8">@Model.Loai</dd>
+                    <dt class="col-sm-4">Số lượng tồn</dt>
+                    <dd class="col-sm-8">@Model.Soluongton</dd>
+                    <dt class="col-sm-4">Mô tả</dt>
+                    <dd class="col-sm-8">@Model.MoTa</dd>
+                </dl>
+                @if (Model.Soluongton > 0)
+                {
+                    <form id="addToCartForm" asp-controller="Cart" asp-action="AddToCart" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="quantity" value="1" />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-warning mt-3">Sản phẩm đã hết hàng.</div>
+                }
+            </div>
+        </div>
+    </div>
+    <!-- Thông tin chi tiết -->
+    <div class="card-body border-top">
+        <h6 class="text-primary mb-3">Thông tin chi tiết</h6>
+        <div class="row">
+            <div class="col-12">
+                @switch (Model.Loai?.ToLower())
+                {
+                    case "laptop":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangLt</dd>
+                            <dt class="col-sm-2">Kích thước</dt>
+                            <dd class="col-sm-4">@ViewBag.KichthuocLt</dd>
+                            <dt class="col-sm-2">RAM</dt>
+                            <dd class="col-sm-4">@ViewBag.RamLt</dd>
+                            <dt class="col-sm-2">Ổ cứng</dt>
+                            <dd class="col-sm-4">@ViewBag.OcungLt</dd>
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuLt</dd>
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatLt?.ToString("dd/MM/yyyy"))</dd>
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangLt</dd>
+                        </dl>
+                        break;
+                    case "loa":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangLoa</dd>
+                            <dt class="col-sm-2">Công suất</dt>
+                            <dd class="col-sm-4">@ViewBag.CongsuatLoa</dd>
+                            <dt class="col-sm-2">Kiểu kết nối</dt>
+                            <dd class="col-sm-4">@ViewBag.KieuketnoiLoa</dd>
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuLoa</dd>
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatLoa?.ToString("dd/MM/yyyy"))</dd>
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangLoa</dd>
+                        </dl>
+                        break;
+                    case "màn hình":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangMh</dd>
+                            <dt class="col-sm-2">Kích thước</dt>
+                            <dd class="col-sm-4">@ViewBag.KichthuocMh</dd>
+                            <dt class="col-sm-2">Tần số</dt>
+                            <dd class="col-sm-4">@ViewBag.TansoMh</dd>
+                            <dt class="col-sm-2">Độ phân giải</dt>
+                            <dd class="col-sm-4">@ViewBag.DoPhanGiaiMh</dd>
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuMh</dd>
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatMh?.ToString("dd/MM/yyyy"))</dd>
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangMh</dd>
+                        </dl>
+                        break;
+                    case "tai nghe":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangTn</dd>
+                            <dt class="col-sm-2">Loại</dt>
+                            <dd class="col-sm-4">@ViewBag.LoaiTn</dd>
+                            <dt class="col-sm-2">Kiểu kết nối</dt>
+                            <dd class="col-sm-4">@ViewBag.KieuketnoiTn</dd>
+                            <dt class="col-sm-2">Pin</dt>
+                            <dd class="col-sm-4">@ViewBag.PinTn</dd>
+                            <dt class="col-sm-2">Trọng lượng</dt>
+                            <dd class="col-sm-4">@ViewBag.TrongluongTn</dd>
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuTn</dd>
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatTn?.ToString("dd/MM/yyyy"))</dd>
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangTn</dd>
+                        </dl>
+                        break;
+                    case "bàn phím":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangBp</dd>
+                            <dt class="col-sm-2">Loại</dt>
+                            <dd class="col-sm-4">@ViewBag.LoaiBp</dd>
+                            <dt class="col-sm-2">Kiểu kết nối</dt>
+                            <dd class="col-sm-4">@ViewBag.KieuketnoiBp</dd>
+                            <dt class="col-sm-2">Đèn LED</dt>
+                            <dd class="col-sm-4">@(ViewBag.DenledBp ? "Có" : "Không")</dd>
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuBp</dd>
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatBp?.ToString("dd/MM/yyyy"))</dd>
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangBp</dd>
+                        </dl>
+                        break;
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-center">
+        <a href="@Url.Action("Index", new { category = Model.Loai?.ToLower() })" class="btn btn-secondary">Quay lại</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <style>
+        .carousel-item {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .carousel-item img {
+            max-height: 400px;
+            object-fit: contain;
+            width: auto;
+            margin: 0 auto;
+            display: block;
+            padding: 20px;
+        }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 5%;
+            opacity: 0.8;
+        }
+
+        .carousel-control-prev:hover,
+        .carousel-control-next:hover {
+            opacity: 1;
+        }
+
+        .carousel-indicators {
+            margin-bottom: 0;
+        }
+
+        .carousel-indicators button {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin: 0 5px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+            $("#addToCartForm").submit(function(e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                var formData = form.serialize();
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            showToast(response.message);
+                            if (response.itemCount) {
+                                $(".cart-badge").text(response.itemCount);
+                            }
+                            // Lưu vào localStorage
+                            saveProductToLocalStorage('@Model.Id', 1, @Model.Gia);
+                        } else {
+                            showToast(response.message, false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        showToast("Có lỗi xảy ra khi thêm vào giỏ hàng", false);
+                    }
+                });
+            });
+        });
+
+        function showToast(message, isSuccess = true) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                style: {
+                    background: isSuccess ? "#4CAF50" : "#f44336"
+                }
+            }).showToast();
+        }
+
+        function saveProductToLocalStorage(id, quantity, price) {
+            let cart = JSON.parse(localStorage.getItem('cart_items') || '[]');
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.quantity += quantity;
+                existing.subtotal = existing.quantity * price;
+            } else {
+                cart.push({ id, quantity, subtotal: quantity * price });
+            }
+            localStorage.setItem('cart_items', JSON.stringify(cart));
+        }
+    </script>
+}

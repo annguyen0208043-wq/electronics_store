@@ -1,0 +1,372 @@
+@model TechShop.ViewModels.CartViewModel
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Giỏ hàng của bạn</h2>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-shopping-cart me-2"></i>Giỏ hàng của bạn đang trống
+        </div>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i>Tiếp tục mua sắm
+        </a>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px">#</th>
+                                <th style="width: 100px">Ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th style="width: 150px">Đơn giá</th>
+                                <th style="width: 150px">Số lượng</th>
+                                <th style="width: 150px">Thành tiền</th>
+                                <th style="width: 100px">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>@(Model.Items.IndexOf(item) + 1)</td>
+                                    <td>
+                                        <img src="/images/@item.HinhAnh" alt="@item.Ten" class="img-thumbnail" style="max-width: 80px;">
+                                    </td>
+                                    <td>@item.Ten</td>
+                                    <td>@item.Gia.ToString("N0") đ</td>
+                                    <td>
+                                        <div class="input-group">
+                                            <button class="btn btn-outline-secondary btn-sm decrease-quantity" type="button" data-id="@item.Id">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <input type="number" class="form-control form-control-sm text-center quantity-input" 
+                                                   value="@item.SoLuong" min="1" data-id="@item.Id" style="max-width: 60px;">
+                                            <button class="btn btn-outline-secondary btn-sm increase-quantity" type="button" data-id="@item.Id">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="item-total">@((item.Gia * item.SoLuong).ToString("N0")) đ</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm remove-item" data-id="@item.Id">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer bg-white">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a asp-controller="Product" asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Tiếp tục mua sắm
+                            </a>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="mb-3">
+                                <h5>Tổng tiền: <span class="text-primary" id="total-amount">@Model.TotalPrice.ToString("N0")</span> đ</h5>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="checkoutBtn">
+                                <i class="fas fa-shopping-cart me-2"></i>Đặt hàng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Hàm cập nhật số lượng sản phẩm
+            function updateQuantity(id, quantity) {
+                $.ajax({
+                    url: '@Url.Action("UpdateQuantity", "Cart", new { area = "User" })',
+                    type: 'POST',
+                    data: { id: id, quantity: quantity },
+                    success: function(response) {
+                        if (response.success) {
+                            showToast(response.message);
+                            $('.item-total').each(function() {
+                                var row = $(this).closest('tr');
+                                var price = parseFloat(row.find('td:eq(3)').text().replace(/[^\d]/g, ''));
+                                var quantity = parseInt(row.find('.quantity-input').val());
+                                $(this).text((price * quantity).toLocaleString() + ' đ');
+                            });
+                            $('#total-amount').text(response.total);
+                            updateCartCount(response.itemCount);
+                        } else {
+                            showToast(response.message, false);
+                        }
+                    },
+                    error: function() {
+                        showToast("Có lỗi xảy ra khi cập nhật giỏ hàng", false);
+                    }
+                });
+            }
+
+            // Hàm xóa sản phẩm
+            function removeItem(id) {
+                $.ajax({
+                    url: '@Url.Action("RemoveItem", "Cart", new { area = "User" })',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function(response) {
+                        if (response.success) {
+                            showToast(response.message);
+                            $(`tr:has(button[data-id="${id}"])`).fadeOut(400, function() {
+                                $(this).remove();
+                                if ($('tbody tr').length === 0) {
+                                    location.reload();
+                                }
+                            });
+                            $('#total-amount').text(response.total);
+                            updateCartCount(response.itemCount);
+                        } else {
+                            showToast(response.message, false);
+                        }
+                    },
+                    error: function() {
+                        showToast("Có lỗi xảy ra khi xóa sản phẩm", false);
+                    }
+                });
+            }
+
+            // Xử lý tăng số lượng
+            $('.increase-quantity').click(function() {
+                var id = $(this).data('id');
+                var input = $(`.quantity-input[data-id="${id}"]`);
+                var newQuantity = parseInt(input.val()) + 1;
+                input.val(newQuantity);
+                updateQuantity(id, newQuantity);
+            });
+
+            // Xử lý giảm số lượng
+            $('.decrease-quantity').click(function() {
+                var id = $(this).data('id');
+                var input = $(`.quantity-input[data-id="${id}"]`);
+                var newQuantity = parseInt(input.val()) - 1;
+                if (newQuantity >= 1) {
+                    input.val(newQuantity);
+                    updateQuantity(id, newQuantity);
+                }
+            });
+
+            // Xử lý nhập số lượng trực tiếp
+            $('.quantity-input').change(function() {
+                var id = $(this).data('id');
+                var newQuantity = parseInt($(this).val());
+                if (newQuantity >= 1) {
+                    updateQuantity(id, newQuantity);
+                } else {
+                    $(this).val(1);
+                    updateQuantity(id, 1);
+                }
+            });
+
+            // Xử lý xóa sản phẩm
+            $('.remove-item').click(function() {
+                var id = $(this).data('id');
+                if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                    removeItem(id);
+                }
+            });
+
+            // Xử lý đặt hàng
+            $('#checkoutBtn').click(function() {
+                if (!@User.Identity.IsAuthenticated.ToString().ToLower()) {
+                    showToast("Vui lòng đăng nhập để đặt hàng", false);
+                    setTimeout(function() {
+                        window.location.href = '/Account/Login';
+                    }, 2000);
+                    return;
+                }
+
+                // Disable nút đặt hàng và hiển thị loading
+                var $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...');
+
+                var items = [];
+                $('.quantity-input').each(function() {
+                    items.push({
+                        id: $(this).data('id'),
+                        quantity: parseInt($(this).val())
+                    });
+                });
+
+                $.ajax({
+                    url: '@Url.Action("CreateOrder", "Cart", new { area = "User" })',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ items: items }),
+                    success: function(response) {
+                        if (response.success) {
+                            // Hiển thị thông báo thành công
+                            showToast(response.message);
+                            
+                            // Tạo modal hiển thị thông tin đơn hàng
+                            var modalHtml = `
+                                <div class="modal fade" id="orderSuccessModal" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title">
+                                                    <i class="fas fa-check-circle me-2"></i>Đặt hàng thành công
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="order-item">
+                                                    <div class="order-item-header">
+                                                        <h5><i class="fas fa-shopping-bag me-2"></i>Mã đơn hàng: ${response.orderId}</h5>
+                                                        <span class="badge bg-warning">Chờ xử lý</span>
+                                                    </div>
+                                                    <p class="text-muted">
+                                                        <i class="far fa-calendar-alt me-2"></i>Ngày đặt hàng: ${new Date().toLocaleString('vi-VN')}
+                                                    </p>
+                                                    <div class="order-item-details">
+                                                        ${response.orderDetails.map(detail => `
+                                                            <div class="order-detail">
+                                                                <img src="/images/${detail.imageUrl}" alt="${detail.productName}" class="img-thumbnail" style="width: 80px;">
+                                                                <div class="ms-3">
+                                                                    <h6 class="mb-1">${detail.productName}</h6>
+                                                                    <p class="mb-0 text-muted">
+                                                                        Số lượng: ${detail.quantity} | 
+                                                                        Giá: ${detail.price.toLocaleString('vi-VN')} đ
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        `).join('')}
+                                                    </div>
+                                                    <div class="text-end mt-3">
+                                                        <h5>Tổng tiền: <span class="text-primary">${response.totalAmount.toLocaleString('vi-VN')} đ</span></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="@Url.Action("Index", "Product")" class="btn btn-secondary">
+                                                    <i class="fas fa-arrow-left me-2"></i>Tiếp tục mua sắm
+                                                </a>
+                                                <a href="${response.redirectUrl}" class="btn btn-primary">
+                                                    <i class="fas fa-list me-2"></i>Xem đơn hàng
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Thêm modal vào body và hiển thị
+                            $('body').append(modalHtml);
+                            var modal = new bootstrap.Modal(document.getElementById('orderSuccessModal'));
+                            modal.show();
+
+                            // Xóa modal khi đóng
+                            $('#orderSuccessModal').on('hidden.bs.modal', function () {
+                                $(this).remove();
+                                // Chuyển hướng đến trang theo dõi đơn hàng
+                                window.location.href = response.redirectUrl;
+                            });
+
+                            // Thêm đơn hàng vào OrderTracking
+                            $.ajax({
+                                url: '@Url.Action("AddToOrderTracking", "OrderTracking", new { area = "User" })',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    orderId: response.orderId,
+                                    orderDetails: response.orderDetails,
+                                    totalAmount: response.totalAmount
+                                }),
+                                success: function(trackingResponse) {
+                                    if (!trackingResponse.success) {
+                                        console.error('Lỗi khi thêm đơn hàng vào OrderTracking:', trackingResponse.message);
+                                    }
+                                },
+                                error: function(xhr) {
+                                    console.error('Lỗi khi thêm đơn hàng vào OrderTracking:', xhr.responseText);
+                                }
+                            });
+                        } else {
+                            showToast(response.message, false);
+                        }
+                        // Reset nút đặt hàng
+                        $btn.prop('disabled', false).html('<i class="fas fa-shopping-cart me-2"></i>Đặt hàng');
+                    },
+                    error: function(xhr) {
+                        var errorMessage = "Có lỗi xảy ra khi đặt hàng";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        showToast(errorMessage, false);
+                        // Reset nút đặt hàng
+                        $btn.prop('disabled', false).html('<i class="fas fa-shopping-cart me-2"></i>Đặt hàng');
+                    }
+                });
+            });
+        });
+
+        function showToast(message, isSuccess = true) {
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                positionClass: "toast-top-right",
+                timeOut: 3000
+            };
+            toastr[isSuccess ? "success" : "error"](message);
+        }
+
+        function updateCartCount(count) {
+            $('.cart-count').text(count);
+        }
+    </script>
+}
+
+<style>
+    .table th {
+        background-color: #f8f9fa;
+    }
+    
+    .quantity-input {
+        text-align: center;
+    }
+    
+    .btn-outline-secondary {
+        border-color: #dee2e6;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .remove-item {
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .img-thumbnail {
+        padding: 0.25rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .card-footer {
+        border-top: 1px solid rgba(0,0,0,.125);
+    }
+    
+    #total-amount {
+        font-weight: bold;
+    }
+</style> 

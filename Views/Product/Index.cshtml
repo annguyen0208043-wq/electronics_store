@@ -1,0 +1,132 @@
+@model List<TechShop.Models.Hanghoa>
+@{
+    ViewData["Title"] = "Sản phẩm";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Bộ lọc sản phẩm -->
+        <div class="col-md-3">
+            <form asp-action="Index" method="get" id="filterForm">
+                @await Html.PartialAsync("_ProductFilter", new TechShop.ViewModels.ProductFilterViewModel
+                {
+                    SelectedCategories = ViewBag.SelectedCategories ?? new List<string>(),
+                    MinPrice = ViewBag.MinPrice ?? 0,
+                    MaxPrice = ViewBag.MaxPrice ?? 5000000
+                })
+            </form>
+        </div>
+
+        <!-- Danh sách sản phẩm -->
+        <div class="col-md-9">
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card product-card h-100">
+                            <img src="@(item.HinhAnhSanPhams.FirstOrDefault()?.DuongDan ?? "/images/default.jpg")" 
+                                 class="card-img-top" alt="@item.TenHh">
+                            <div class="card-body">
+                                <h5 class="card-title">@item.TenHh</h5>
+                                <p class="card-text text-muted">@item.LoaiHh</p>
+                                <p class="card-text price">@item.GiaHh.ToString("N0") VNĐ</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("Details", "Product", new { id = item.MaHh })" 
+                                       class="btn btn-outline-primary">Chi tiết</a>
+                                    <button class="btn btn-primary add-to-cart" 
+                                            data-id="@item.MaHh" 
+                                            data-name="@item.TenHh" 
+                                            data-price="@item.GiaHh">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-card .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .product-card .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-card .price {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #e74c3c;
+        margin: 0.5rem 0;
+    }
+
+    .product-card .btn {
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+
+    .product-card .add-to-cart {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .product-card .add-to-cart:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Xử lý sự kiện thêm vào giỏ hàng
+            $('.add-to-cart').click(function() {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                var price = $(this).data('price');
+
+                $.post('/Cart/AddToCart', { id: id }, function(response) {
+                    if (response.success) {
+                        toastr.success('Đã thêm ' + name + ' vào giỏ hàng');
+                        // Cập nhật số lượng sản phẩm trong giỏ hàng
+                        $('.cart-badge').text(response.cartCount);
+                    } else {
+                        toastr.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
+                    }
+                });
+            });
+
+            // Xử lý sự kiện reset form
+            $('.reset-btn').click(function(e) {
+                e.preventDefault();
+                $('#filterForm')[0].reset();
+                $('#filterForm').submit();
+            });
+        });
+    </script>
+} 

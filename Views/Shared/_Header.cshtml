@@ -1,0 +1,114 @@
+﻿<header>
+    <!-- Header Top -->
+    <div class="header-top py-2 bg-dark text-light">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="social-icons d-flex align-items-center">
+                <a href="https://www.facebook.com" target="_blank" aria-label="Facebook" class="text-light me-2">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                <a href="https://www.instagram.com" target="_blank" aria-label="Instagram" class="text-light me-2">
+                    <i class="bi bi-instagram"></i>
+                </a>
+                <a href="https://www.tiktok.com" target="_blank" aria-label="TikTok" class="text-light">
+                    <i class="bi bi-tiktok"></i>
+                </a>
+            </div>
+            <div class="account-info">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <span class="text-light me-2">Xin chào, @User.Identity.Name</span>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-link text-light p-0">Đăng xuất</button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="text-decoration-none text-light d-flex align-items-center">
+                        <i class="bi bi-person-circle me-1"></i> Đăng nhập
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Bottom -->
+    <div class="header-bottom bg-light">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid align-items-center d-flex flex-nowrap">
+                    <a class="navbar-brand me-3 logo" href="#">
+                        <img src="https://via.placeholder.com/150x50?text=Logo" alt="Logo" class="img-fluid" />
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse flex-grow-1" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="productDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Danh mục sản phẩm
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="productDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Category" asp-route-category="Laptop">Laptop</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Category" asp-route-category="Bàn phím">Bàn phím</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Category" asp-route-category="Tai nghe">Tai nghe</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Category" asp-route-category="Loa">Loa</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Category" asp-route-category="Màn hình">Màn hình</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Index">Trang chủ</a>
+                                </li>
+                            }
+                            else if (User.IsInRole("User"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="productDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Danh mục sản phẩm
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="productDropdown">
+                                        <li><a class="dropdown-item" asp-controller="User" asp-action="Category" asp-route-category="Laptop">Laptop</a></li>
+                                        <li><a class="dropdown-item" asp-controller="User" asp-action="Category" asp-route-category="Bàn phím">Bàn phím</a></li>
+                                        <li><a class="dropdown-item" asp-controller="User" asp-action="Category" asp-route-category="Tai nghe">Tai nghe</a></li>
+                                        <li><a class="dropdown-item" asp-controller="User" asp-action="Category" asp-route-category="Loa">Loa</a></li>
+                                        <li><a class="dropdown-item" asp-controller="User" asp-action="Category" asp-route-category="Màn hình">Màn hình</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="User" asp-action="Index">Trang chủ</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Theo dõi đơn</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Bảo hành</a>
+                            </li>
+                        </ul>
+                        <form class="d-flex ms-auto search-bar" role="search" aria-label="Site Search">
+                            <div class="input-group">
+                                <input type="search" class="form-control" placeholder="Tìm kiếm..." aria-label="Search" aria-describedby="button-search" />
+                                <button class="btn btn-primary" type="submit" id="button-search" aria-label="Search Button">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <a href="#" class="cart-icon position-relative ms-3" aria-label="Giỏ hàng">
+                            <i class="bi bi-cart"></i>
+                            <span class="cart-badge">3</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>

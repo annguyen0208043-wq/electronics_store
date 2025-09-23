@@ -1,0 +1,222 @@
+@model TechShop.ViewModels.StatisticsViewModel
+@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Thống kê doanh thu";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="filterForm" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Từ ngày</label>
+                    <input type="date" class="form-control" id="startDate" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Đến ngày</label>
+                    <input type="date" class="form-control" id="endDate" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Xem thống kê</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Tổng doanh thu</h5>
+                    <h3 class="text-primary">@Model.TotalRevenue.ToString("N0") đ</h3>
+                    <p class="text-muted">Trong khoảng thời gian đã chọn</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Số đơn hàng đã giao</h5>
+                    <h3 class="text-success">@Model.CompletedOrders</h3>
+                    <p class="text-muted">Trong khoảng thời gian đã chọn</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Danh sách đơn hàng đã giao</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>                           
+                        </tr>
+                    </thead>
+                    <tbody id="deliveredOrdersTable">
+                        @foreach (var order in Model.DeliveredOrdersList)
+                        {
+                            <tr>
+                                <td>@order.OrderId</td>
+                                <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@order.TotalAmount.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Top 5 sản phẩm bán chạy nhất</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng bán</th>
+                                <th>Doanh thu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var product in Model.TopProducts)
+                            {
+                                <tr>
+                                    <td>@product.ProductName</td>
+                                    <td>@product.TotalSold</td>
+                                    <td>@product.TotalRevenue.ToString("N0") đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chi tiết đơn hàng -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="orderDetailsContent">
+                <!-- Nội dung chi tiết đơn hàng sẽ được load động -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Khởi tạo biểu đồ
+            var ctx = document.getElementById('topProductsChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(JsonConvert.SerializeObject(Model.TopProducts.Select(p => p.ProductName))),
+                    datasets: [{
+                        label: 'Số lượng bán',
+                        data: @Html.Raw(JsonConvert.SerializeObject(Model.TopProducts.Select(p => p.TotalSold))),
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Xử lý form submit
+            $("#filterForm").on("submit", function(e) {
+                e.preventDefault();
+                var startDate = $("#startDate").val();
+                var endDate = $("#endDate").val();
+                
+                $.ajax({
+                    url: '@Url.Action("Statistics", "AdminStatistics")',
+                    type: 'GET',
+                    data: {
+                        startDate: startDate,
+                        endDate: endDate
+                    },
+                    success: function(result) {
+                        // Cập nhật thông tin thống kê
+                        $(".text-primary").text(result.totalRevenue.toLocaleString() + " đ");
+                        $(".text-success").text(result.completedOrders);
+                        $(".text-info").text(result.deliveredOrders);
+                        
+                        // Cập nhật bảng đơn hàng đã giao
+                        var tbody = $("#deliveredOrdersTable");
+                        tbody.empty();
+                        result.deliveredOrdersList.forEach(function(order) {
+                            tbody.append(`
+                                <tr>
+                                    <td>${order.orderId}</td>
+                                    <td>${new Date(order.orderDate).toLocaleString('vi-VN')}</td>
+                                    <td>${order.totalAmount.toLocaleString()} đ</td>
+                                </tr>
+                            `);
+                        });
+                        
+                        // Cập nhật bảng top sản phẩm
+                        var tbody = $(".card:last-child table tbody");
+                        tbody.empty();
+                        result.topProducts.forEach(function(product) {
+                            tbody.append(`
+                                <tr>
+                                    <td>${product.productName}</td>
+                                    <td>${product.totalSold}</td>
+                                    <td>${product.totalRevenue.toLocaleString()} đ</td>
+                                </tr>
+                            `);
+                        });
+                        
+                        // Cập nhật biểu đồ
+                        chart.data.labels = result.topProducts.map(p => p.productName);
+                        chart.data.datasets[0].data = result.topProducts.map(p => p.totalSold);
+                        chart.update();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Lỗi:", error);
+                        alert("Có lỗi xảy ra khi tải dữ liệu thống kê!");
+                    }
+                });
+            });
+
+            // Xử lý xem chi tiết đơn hàng
+            $(document).on('click', '[data-bs-target="#orderDetailsModal"]', function() {
+                var orderId = $(this).data('order-id');
+                $.get('@Url.Action("GetOrderDetails", "AdminStatistics")', { orderId: orderId }, function(data) {
+                    $('#orderDetailsContent').html(data);
+                });
+            });
+        });
+    </script>
+} 

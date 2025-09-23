@@ -1,0 +1,412 @@
+﻿@model TechShop.ViewModels.ProductViewModel
+
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
+</div>
+
+
+<div class="card">
+    <div class="row g-0">
+        <!-- Phần ảnh và thông tin cơ bản -->
+        <div class="col-md-8">
+            <div class="card-body">
+                @if (Model.HinhAnh != null && Model.HinhAnh.Any())
+                {
+                    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            @for (int i = 0; i < Model.HinhAnh.Count; i++)
+                            {
+                                <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="@i"
+                                    class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")"
+                                    aria-label="Slide @(i + 1)"></button>
+                            }
+                        </div>
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.HinhAnh.Count; i++)
+                            {
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <div class="position-relative">
+                                        <img src="/images/@Model.HinhAnh[i]" class="d-block w-100" alt="@Model.Ten"
+                                            style="max-height: 400px; object-fit: contain; width: auto; margin: 0 auto;"
+                                            loading="lazy">
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <img src="/images/default.jpg" class="card-img-top" alt="@Model.Ten"
+                        style="max-height: 400px; object-fit: contain; width: auto; margin: 0 auto;" loading="lazy">
+                }
+            </div>
+        </div>
+        <!-- Thông tin cơ bản -->
+        <div class="col-md-4">
+            <div class="card-body">
+                <h5 class="card-title">@Model.Ten</h5>
+                <h6 class="text-primary mb-3">Thông tin cơ bản</h6>
+                <dl class="row">
+                    <dt class="col-sm-4">Mã sản phẩm</dt>
+                    <dd class="col-sm-8">@Model.Id</dd>
+
+                    <dt class="col-sm-4">Giá</dt>
+                    <dd class="col-sm-8">@Model.Gia.ToString("N0").Replace(",", ".") VNĐ</dd>
+
+                    <dt class="col-sm-4">Loại</dt>
+                    <dd class="col-sm-8">@Model.Loai</dd>
+
+                    <dt class="col-sm-4">Số lượng tồn</dt>
+                    <dd class="col-sm-8">@Model.Soluongton</dd>
+
+                    <dt class="col-sm-4">Mô tả</dt>
+                    <dd class="col-sm-8">@Model.MoTa</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <!-- Thông tin chi tiết -->
+    <div class="card-body border-top">
+        <h6 class="text-primary mb-3">Thông tin chi tiết</h6>
+        <div class="row">
+            <div class="col-12">
+                @switch (Model.Loai?.ToLower())
+                {
+                    case "laptop":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangLt</dd>
+
+                            <dt class="col-sm-2">Kích thước</dt>
+                            <dd class="col-sm-4">@ViewBag.KichthuocLt</dd>
+
+                            <dt class="col-sm-2">RAM</dt>
+                            <dd class="col-sm-4">@ViewBag.RamLt</dd>
+
+                            <dt class="col-sm-2">Ổ cứng</dt>
+                            <dd class="col-sm-4">@ViewBag.OcungLt</dd>
+
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuLt</dd>
+
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatLt?.ToString("dd/MM/yyyy"))</dd>
+
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangLt</dd>
+                        </dl>
+                        break;
+
+                    case "loa":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangLoa</dd>
+
+                            <dt class="col-sm-2">Công suất</dt>
+                            <dd class="col-sm-4">@ViewBag.CongsuatLoa</dd>
+
+                            <dt class="col-sm-2">Kiểu kết nối</dt>
+                            <dd class="col-sm-4">@ViewBag.KieuketnoiLoa</dd>
+
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuLoa</dd>
+
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatLoa?.ToString("dd/MM/yyyy"))</dd>
+
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangLoa</dd>
+                        </dl>
+                        break;
+
+                    case "màn hình":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangMh</dd>
+
+                            <dt class="col-sm-2">Kích thước</dt>
+                            <dd class="col-sm-4">@ViewBag.KichthuocMh</dd>
+
+                            <dt class="col-sm-2">Tần số</dt>
+                            <dd class="col-sm-4">@ViewBag.TansoMh</dd>
+
+                            <dt class="col-sm-2">Độ phân giải</dt>
+                            <dd class="col-sm-4">@ViewBag.DoPhanGiaiMh</dd>
+
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuMh</dd>
+
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatMh?.ToString("dd/MM/yyyy"))</dd>
+
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangMh</dd>
+                        </dl>
+                        break;
+
+                    case "tai nghe":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangTn</dd>
+
+                            <dt class="col-sm-2">Loại</dt>
+                            <dd class="col-sm-4">@ViewBag.LoaiTn</dd>
+
+                            <dt class="col-sm-2">Kiểu kết nối</dt>
+                            <dd class="col-sm-4">@ViewBag.KieuketnoiTn</dd>
+
+                            <dt class="col-sm-2">Pin</dt>
+                            <dd class="col-sm-4">@ViewBag.PinTn</dd>
+
+                            <dt class="col-sm-2">Trọng lượng</dt>
+                            <dd class="col-sm-4">@ViewBag.TrongluongTn</dd>
+
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuTn</dd>
+
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatTn?.ToString("dd/MM/yyyy"))</dd>
+
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangTn</dd>
+                        </dl>
+                        break;
+
+                    case "bàn phím":
+                        <dl class="row">
+                            <dt class="col-sm-2">Hãng</dt>
+                            <dd class="col-sm-4">@ViewBag.HangBp</dd>
+
+                            <dt class="col-sm-2">Loại</dt>
+                            <dd class="col-sm-4">@ViewBag.LoaiBp</dd>
+
+                            <dt class="col-sm-2">Kiểu kết nối</dt>
+                            <dd class="col-sm-4">@ViewBag.KieuketnoiBp</dd>
+
+                            <dt class="col-sm-2">Đèn LED</dt>
+                            <dd class="col-sm-4">@(ViewBag.DenledBp ? "Có" : "Không")</dd>
+
+                            <dt class="col-sm-2">Xuất xứ</dt>
+                            <dd class="col-sm-4">@ViewBag.XuatxuBp</dd>
+
+                            <dt class="col-sm-2">Ngày sản xuất</dt>
+                            <dd class="col-sm-4">@(ViewBag.NgaysanxuatBp?.ToString("dd/MM/yyyy"))</dd>
+
+                            <dt class="col-sm-2">Tình trạng</dt>
+                            <dd class="col-sm-4">@ViewBag.TinhtrangBp</dd>
+                        </dl>
+                        break;
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-center">
+        <a href="@Url.Action("Index", new { category = Model.Loai?.ToLower() })" class="btn btn-secondary">Quay
+            lại</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Sửa</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Xóa</a>
+    </div>
+</div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+}
+
+<style>
+    .carousel-inner {
+        max-height: 400px;
+        overflow: hidden;
+        background-color: #fff9f5;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .carousel-item img {
+        max-height: 400px;
+        object-fit: contain;
+        width: auto !important;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 5%;
+        opacity: 0.8;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        height: 40px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .carousel-indicators {
+        bottom: -40px;
+    }
+
+    .carousel-indicators button {
+        background-color: #ffd6c4;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin: 0 5px;
+    }
+
+    .carousel-indicators .active {
+        background-color: #ff7f50;
+    }
+
+    .card {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: none;
+        border-radius: 12px;
+        background-color: #fff9f5;
+        margin-bottom: 2rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        background-color: #fff9f5;
+    }
+
+    dt {
+        font-weight: 600;
+        color: #2C3E50;
+        font-size: 0.95rem;
+    }
+
+    dd {
+        margin-bottom: 0.75rem;
+        color: #666666;
+        font-size: 0.95rem;
+    }
+
+    h6 {
+        color: #ff7f50;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #ffd6c4;
+        font-weight: 600;
+    }
+
+    .card-footer {
+        background-color: #fff0e6;
+        border-top: 1px solid #ffd6c4;
+        padding: 1rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary {
+        background-color: #ffd6c4;
+        border-color: #ffd6c4;
+        color: #ff7f50;
+    }
+
+    .btn-secondary:hover {
+        background-color: #ffc4ad;
+        border-color: #ffc4ad;
+        color: #ff7f50;
+    }
+
+    .btn-warning {
+        background-color: #ff7f50;
+        border-color: #ff7f50;
+        color: #ffffff;
+    }
+
+    .btn-warning:hover {
+        background-color: #ff6b3d;
+        border-color: #ff6b3d;
+        color: #ffffff;
+    }
+
+    .btn-danger {
+        background-color: #ff4d4d;
+        border-color: #ff4d4d;
+    }
+
+    .btn-danger:hover {
+        background-color: #ff3333;
+        border-color: #ff3333;
+    }
+
+    .alert {
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-success {
+        background-color: #e6fff2;
+        color: #006633;
+        border-left: 4px solid #00cc66;
+    }
+
+    .alert-danger {
+        background-color: #ffe6e6;
+        color: #cc0000;
+        border-left: 4px solid #ff4d4d;
+    }
+
+    .border-top {
+        border-top: 1px solid #ffd6c4 !important;
+        background-color: #fff0e6;
+    }
+
+    .card-title {
+        color: #5C4033;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .text-primary {
+        color: #ff7f50 !important;
+    }
+
+    h2 {
+        color: #ff7f50;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Style cho phần top của card */
+    .card>.card-body:first-child {
+        background-color: #fff0e6;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+    }
+</style>

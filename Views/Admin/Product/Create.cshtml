@@ -1,0 +1,450 @@
+﻿@model TechShop.ViewModels.ProductViewModel
+
+@{
+    ViewData["Title"] = "Tạo sản phẩm mới";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = new[] { "Laptop", "Loa", "Màn hình", "Tai nghe", "Bàn phím" };
+}
+
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Create" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!-- Chọn loại sản phẩm -->
+                <div class="form-group mb-4">
+                    <label asp-for="Loai" class="control-label">Chọn loại sản phẩm</label>
+                    <select asp-for="Loai" class="form-select" id="productType" required>
+                        <option value="">-- Chọn loại sản phẩm --</option>
+                        <option value="laptop">Laptop</option>
+                        <option value="loa">Loa</option>
+                        <option value="manhinh">Màn hình</option>
+                        <option value="tainghe">Tai nghe</option>
+                        <option value="banphim">Bàn phím</option>
+                    </select>
+                    <span asp-validation-for="Loai" class="text-danger"></span>
+                </div>
+
+                <!-- Thông tin cơ bản -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">Thông tin cơ bản</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Ten" class="control-label">Tên sản phẩm</label>
+                                    <input asp-for="Ten" class="form-control" required />
+                                    <span asp-validation-for="Ten" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Gia" class="control-label">Giá</label>
+                                    <input asp-for="Gia" class="form-control" type="number" min="0" required />
+                                    <span asp-validation-for="Gia" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Soluongton" class="control-label">Số lượng tồn</label>
+                                    <input asp-for="Soluongton" class="form-control" type="number" min="0" required />
+                                    <span asp-validation-for="Soluongton" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MaNcc" class="control-label">Mã nhà cung cấp</label>
+                                    <select asp-for="MaNcc" class="form-select" required>
+                                        <option value="">-- Chọn nhà cung cấp --</option>
+                                        <option value="NCC001">NCC001 - Logitech VN</option>
+                                        <option value="NCC002">NCC002 - Razer VN</option>
+                                        <option value="NCC003">NCC003 - JBL VN</option>
+                                        <option value="NCC004">NCC004 - Dell VN</option>
+                                        <option value="NCC005">NCC005 - Asus VN</option>
+                                    </select>
+                                    <span asp-validation-for="MaNcc" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MoTa" class="control-label">Mô tả</label>
+                                    <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="MoTa" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin chi tiết -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">Thông tin chi tiết</h6>
+                        <!-- Form fields cho Laptop -->
+                        <div id="laptopFields" class="product-fields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Hãng</label>
+                                        <input name="HangLt" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Kích thước</label>
+                                        <input name="KichthuocLt" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">RAM</label>
+                                        <input name="RamLt" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Ổ cứng</label>
+                                        <input name="OcungLt" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Xuất xứ</label>
+                                        <input name="XuatxuLt" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Ngày sản xuất</label>
+                                        <input name="NgaysanxuatLt" type="date" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Tình trạng</label>
+                                        <input name="TinhtrangLt" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form fields cho Loa -->
+                        <div id="loaFields" class="product-fields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Hãng</label>
+                                        <input name="HangLoa" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Công suất</label>
+                                        <input name="CongsuatLoa" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Kiểu kết nối</label>
+                                        <input name="KieuketnoiLoa" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Xuất xứ</label>
+                                        <input name="XuatxuLoa" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Ngày sản xuất</label>
+                                        <input name="NgaysanxuatLoa" type="date" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Tình trạng</label>
+                                        <input name="TinhtrangLoa" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form fields cho Màn hình -->
+                        <div id="manhinhFields" class="product-fields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Hãng</label>
+                                        <input name="HangMh" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Kích thước</label>
+                                        <input name="KichthuocMh" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Tần số</label>
+                                        <input name="TansoMh" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Độ phân giải</label>
+                                        <input name="DoPhanGiaiMh" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Xuất xứ</label>
+                                        <input name="XuatxuMh" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Ngày sản xuất</label>
+                                        <input name="NgaysanxuatMh" type="date" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Tình trạng</label>
+                                        <input name="TinhtrangMh" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form fields cho Tai nghe -->
+                        <div id="taingheFields" class="product-fields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Hãng</label>
+                                        <input name="HangTn" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Loại</label>
+                                        <input name="LoaiTn" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Kiểu kết nối</label>
+                                        <input name="KieuketnoiTn" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Pin</label>
+                                        <input name="PinTn" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Trọng lượng</label>
+                                        <input name="TrongluongTn" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Xuất xứ</label>
+                                        <input name="XuatxuTn" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Ngày sản xuất</label>
+                                        <input name="NgaysanxuatTn" type="date" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Tình trạng</label>
+                                        <input name="TinhtrangTn" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form fields cho Bàn phím -->
+                        <div id="banphimFields" class="product-fields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Hãng</label>
+                                        <input name="HangBp" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Loại</label>
+                                        <input name="LoaiBp" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Kiểu kết nối</label>
+                                        <input name="KieuketnoiBp" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Đèn LED</label>
+                                        <select name="DenledBp" class="form-select">
+                                            <option value="true">Có</option>
+                                            <option value="false">Không</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Xuất xứ</label>
+                                        <input name="XuatxuBp" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Ngày sản xuất</label>
+                                        <input name="NgaysanxuatBp" type="date" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">Tình trạng</label>
+                                        <input name="TinhtrangBp" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hình ảnh -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">Hình ảnh sản phẩm</h6>
+                        <div class="form-group">
+                            <input type="file" name="images" multiple class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Tạo mới</button>
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function showFieldsByType(type) {
+            document.querySelectorAll('.product-fields').forEach(function (el) {
+                el.style.display = 'none';
+            });
+            if (type) {
+                var fieldsToShow = document.getElementById(type + 'Fields');
+                if (fieldsToShow) {
+                    fieldsToShow.style.display = 'block';
+                }
+            }
+        }
+        document.getElementById('productType').addEventListener('change', function () {
+            showFieldsByType(this.value);
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            var selectedType = document.getElementById('productType').value;
+            showFieldsByType(selectedType);
+        });
+    </script>
+    <style>
+        .card {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            boer: none;
+            border-radius: 12px;
+            background-color: #fff9f5;
+            margin-bottom: 2rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            background-color: #fff9f5;
+        }
+
+        h6 {
+            color: #ff7f50;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #ffd6c4;
+            font-weight: 600;
+
+        }
+
+        .btn-primary {
+            background-color: #ff7f50;
+            border-color: #ff7f50;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #ff6b3d;
+            border-color: #ff6b3d;
+        }
+
+        .btn-secondary {
+            background-color: #ffd6c4;
+            border-color: #ffd6c4;
+            color: #ff7f50;
+
+        }
+
+        .btn-secondary:hover {
+            background-color: #ffc4ad;
+            border-color: #ffc4ad;
+        }
+
+        .f orm-control:focus .form-select:focus {
+            border-color: #ff7f50;
+            box-shadow: 0 0 0 0.2rem rgba(255, 127, 80, 0.25);
+        }
+
+        .text-primary {
+            color: #ff7f50 !important;
+
+        }
+
+        h2 {
+            color: #ff7f50;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+}

@@ -1,0 +1,123 @@
+@model TechShop.ViewModels.HomeViewModel
+
+@{
+    ViewData["Title"] = "Trang chủ - User";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<div class="container my-4">
+    <!-- Section Sản phẩm mới -->
+    <section>
+        <h2 class="section-title mb-4">Sản phẩm mới</h2>
+        @if (Model.NewProducts.Any())
+        {
+            <div class="row g-4">
+                @foreach (var product in Model.NewProducts)
+                {
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                        <div class="card p-3 border rounded h-100">
+                            @{
+                                string imageUrl = product.HinhAnh.Any() && !string.IsNullOrEmpty(product.HinhAnh[0]) ?
+                                product.HinhAnh[0] : "default.jpg";
+                                if (!string.IsNullOrEmpty(imageUrl) && imageUrl.StartsWith("/images/"))
+                                {
+                                    imageUrl = imageUrl.Replace("/images/", "");
+                                }
+                                string fullImagePath = string.IsNullOrEmpty(imageUrl) ? "/images/default.jpg" :
+                                $"/images/{imageUrl}";
+                            }
+                            <img src="@fullImagePath" alt="@product.Ten" class="card-img-top"
+                                onerror="this.src='/images/default-product.jpg'" />
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">@product.Ten</h5>
+                                <p class="card-text">@product.Gia.ToString("N0") VNĐ</p>
+                                <div class="mt-auto d-flex justify-content-between">
+                                    <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id"
+                                        class="btn btn-outline-primary btn-sm">Chi tiết</a>
+                                    <button class="btn btn-primary btn-sm add-to-cart" data-id="@product.Id">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Hiện chưa có sản phẩm mới</div>
+        }
+    </section>
+
+    <!-- Section Sản phẩm thịnh hành -->
+    <section class="mt-5">
+        <h2 class="section-title mb-4">Sản phẩm thịnh hành</h2>
+        @if (Model.PopularProducts.Any())
+        {
+            <div class="row g-4">
+                @foreach (var product in Model.PopularProducts)
+                {
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                        <div class="card p-3 border rounded h-100">
+                            @{
+                                string imageUrl = product.HinhAnh.Any() && !string.IsNullOrEmpty(product.HinhAnh[0]) ?
+                                product.HinhAnh[0] : "default.jpg";
+                                if (!string.IsNullOrEmpty(imageUrl) && imageUrl.StartsWith("/images/"))
+                                {
+                                    imageUrl = imageUrl.Replace("/images/", "");
+                                }
+                                string fullImagePath = string.IsNullOrEmpty(imageUrl) ? "/images/default.jpg" :
+                                $"/images/{imageUrl}";
+                            }
+                            <img src="@fullImagePath" alt="@product.Ten" class="card-img-top"
+                                onerror="this.src='/images/default-product.jpg'" />
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">@product.Ten</h5>
+                                <p class="card-text">@product.FormattedPrice</p>
+                                <div class="mt-auto d-flex justify-content-between">
+                                    <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id"
+                                        class="btn btn-outline-primary btn-sm">Chi tiết</a>
+                                    <button class="btn btn-primary btn-sm add-to-cart" data-id="@product.Id">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Hiện chưa có sản phẩm thịnh hành</div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.add-to-cart').click(function () {
+                const productId = $(this).data('id');
+                $.post('/Cart/Add', { id: productId })
+                    .done(function () {
+                        toastr.success('Đã thêm vào giỏ hàng');
+                        updateCartCount();
+                    })
+                    .fail(function () {
+                        toastr.error('Có lỗi xảy ra');
+                    });
+            });
+
+            function updateCartCount() {
+                $.get('/Cart/GetCount')
+                    .done(function (count) {
+                        $('.cart-badge').text(count);
+                    });
+            }
+
+            updateCartCount();
+        });
+    </script>
+}

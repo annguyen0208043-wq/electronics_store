@@ -1,0 +1,27 @@
+@model TechShop.ViewModels.HomeViewModel
+
+@{
+    ViewData["Title"] = "Home Page for Guests";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml"; // Sử dụng layout cho người dùng chưa đăng nhập
+}
+
+<h1>Welcome to TechShop!</h1>
+<h2>New Products</h2>
+@if (Model.NewProducts != null)
+{
+    foreach (var product in Model.NewProducts)
+    {
+        <p>@product.Ten - @product.FormattedPrice</p>
+    }
+}
+
+<h2>Popular Products</h2>
+@if (Model.PopularProducts != null)
+{
+    foreach (var product in Model.PopularProducts)
+    {
+        <p>@product.Ten - @product.FormattedPrice</p>
+    }
+}
+
+<p>Please <a href="/Account/Login">login</a> to access more features.</p>

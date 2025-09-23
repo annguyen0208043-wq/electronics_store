@@ -1,0 +1,692 @@
+﻿@model TechShop.ViewModels.ProductViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var loaiMap = new Dictionary<string, string>
+{
+{ "Laptop", "laptop" },
+{ "laptop", "laptop" },
+{ "Loa", "loa" },
+{ "loa", "loa" },
+{ "Màn hình", "manhinh" },
+{ "Màn Hình", "manhinh" },
+{ "manhinh", "manhinh" },
+{ "màn hình", "manhinh" },
+{ "Tai nghe", "tainghe" },
+{ "Tai Nghe", "tainghe" },
+{ "tainghe", "tainghe" },
+{ "tai nghe", "tainghe" },
+{ "Bàn phím", "banphim" },
+{ "Bàn Phím", "banphim" },
+{ "banphim", "banphim" },
+{ "bàn phím", "banphim" }
+};
+    ; var normalizedLoai = Model.Loai?.Trim() ?? "";
+    var loaiKey = loaiMap.ContainsKey(normalizedLoai) ? loaiMap[normalizedLoai] :
+    loaiMap.ContainsKey(normalizedLoai.ToLower()) ? loaiMap[normalizedLoai.ToLower()] : "";
+}
+
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data"
+                class="needs-validation" novalidate>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Loai" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!-- Thông tin cơ bản -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">Thông tin cơ bản</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Ten" class="control-label">Tên sản phẩm</label>
+                                    <input asp-for="Ten" class="form-control" required />
+                                    <span asp-validation-for="Ten" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Gia" class="control-label">Giá</label>
+                                    <input asp-for="Gia" class="form-control" type="number" min="0" required />
+                                    <span asp-validation-for="Gia" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Soluongton" class="control-label">Số lượng tồn</label>
+                                    <input asp-for="Soluongton" class="form-control" type="number" min="0" required />
+                                    <span asp-validation-for="Soluongton" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MaNcc" class="control-label">Mã nhà cung cấp</label>
+                                    <select asp-for="MaNcc" class="form-select" required>
+                                        <option value="">-- Chọn nhà cung cấp --</option>
+                                        <option value="NCC001" selected="@(Model.MaNcc == "NCC001")">NCC001 - Logitech
+                                            VN</option>
+                                        <option value="NCC002" selected="@(Model.MaNcc == "NCC002")">NCC002 - Razer VN
+                                        </option>
+                                        <option value="NCC003" selected="@(Model.MaNcc == "NCC003")">NCC003 - JBL VN
+                                        </option>
+                                        <option value="NCC004" selected="@(Model.MaNcc == "NCC004")">NCC004 - Dell VN
+                                        </option>
+                                        <option value="NCC005" selected="@(Model.MaNcc == "NCC005")">NCC005 - Asus VN
+                                        </option>
+                                    </select>
+                                    <span asp-validation-for="MaNcc" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MoTa" class="control-label">Mô tả</label>
+                                    <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="MoTa" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin chi tiết -->
+                <div class="card mb-4">
+                    <div class="card-body border-top">
+                        <h6 class="text-primary mb-3">Thông tin chi tiết</h6>
+                        @switch (loaiKey)
+                        {
+                            case "laptop":
+                                <div id="laptopFields" class="product-fields">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Hãng</label>
+                                                <input name="HangLt" class="form-control" value="@ViewBag.HangLt" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Kích thước</label>
+                                                <input name="KichthuocLt" class="form-control" value="@ViewBag.KichthuocLt" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">RAM</label>
+                                                <input name="RamLt" class="form-control" value="@ViewBag.RamLt" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Ổ cứng</label>
+                                                <input name="OcungLt" class="form-control" value="@ViewBag.OcungLt" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Xuất xứ</label>
+                                                <input name="XuatxuLt" class="form-control" value="@ViewBag.XuatxuLt" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Ngày sản xuất</label>
+                                                <input name="NgaysanxuatLt" type="date" class="form-control"
+                                                    value="@(ViewBag.NgaysanxuatLt != null ? ((DateTime)ViewBag.NgaysanxuatLt).ToString("yyyy-MM-dd") : "")" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Tình trạng</label>
+                                                <input name="TinhtrangLt" class="form-control" value="@ViewBag.TinhtrangLt" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                break;
+
+                            case "loa":
+                                <div id="loaFields" class="product-fields">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Hãng</label>
+                                                <input name="HangLoa" class="form-control" value="@ViewBag.HangLoa" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Công suất</label>
+                                                <input name="CongsuatLoa" class="form-control" value="@ViewBag.CongsuatLoa" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Kiểu kết nối</label>
+                                                <input name="KieuketnoiLoa" class="form-control"
+                                                    value="@ViewBag.KieuketnoiLoa" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Xuất xứ</label>
+                                                <input name="XuatxuLoa" class="form-control" value="@ViewBag.XuatxuLoa" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Ngày sản xuất</label>
+                                                <input name="NgaysanxuatLoa" type="date" class="form-control"
+                                                    value="@(ViewBag.NgaysanxuatLoa != null ? ((DateTime)ViewBag.NgaysanxuatLoa).ToString("yyyy-MM-dd") : "")" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Tình trạng</label>
+                                                <input name="TinhtrangLoa" class="form-control" value="@ViewBag.TinhtrangLoa" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                break;
+
+                            case "manhinh":
+                                <div id="manhinhFields" class="product-fields">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Hãng</label>
+                                                <input name="HangMh" class="form-control" value="@ViewBag.HangMh" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Kích thước</label>
+                                                <input name="KichthuocMh" class="form-control" value="@ViewBag.KichthuocMh" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Tần số</label>
+                                                <input name="TansoMh" class="form-control" value="@ViewBag.TansoMh" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Độ phân giải</label>
+                                                <input name="DoPhanGiaiMh" class="form-control" value="@ViewBag.DoPhanGiaiMh" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Xuất xứ</label>
+                                                <input name="XuatxuMh" class="form-control" value="@ViewBag.XuatxuMh" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Ngày sản xuất</label>
+                                                <input name="NgaysanxuatMh" type="date" class="form-control"
+                                                    value="@(ViewBag.NgaysanxuatMh != null ? ((DateTime)ViewBag.NgaysanxuatMh).ToString("yyyy-MM-dd") : "")" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Tình trạng</label>
+                                                <input name="TinhtrangMh" class="form-control" value="@ViewBag.TinhtrangMh" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                break;
+
+                            case "tainghe":
+                                <div id="taingheFields" class="product-fields">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Hãng</label>
+                                                <input name="HangTn" class="form-control" value="@ViewBag.HangTn" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Loại</label>
+                                                <input name="LoaiTn" class="form-control" value="@ViewBag.LoaiTn" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Kiểu kết nối</label>
+                                                <input name="KieuketnoiTn" class="form-control" value="@ViewBag.KieuketnoiTn" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Pin</label>
+                                                <input name="PinTn" class="form-control" value="@ViewBag.PinTn" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Trọng lượng</label>
+                                                <input name="TrongluongTn" class="form-control" value="@ViewBag.TrongluongTn" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Xuất xứ</label>
+                                                <input name="XuatxuTn" class="form-control" value="@ViewBag.XuatxuTn" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Ngày sản xuất</label>
+                                                <input name="NgaysanxuatTn" type="date" class="form-control"
+                                                    value="@(ViewBag.NgaysanxuatTn != null ? ((DateTime)ViewBag.NgaysanxuatTn).ToString("yyyy-MM-dd") : "")" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Tình trạng</label>
+                                                <input name="TinhtrangTn" class="form-control" value="@ViewBag.TinhtrangTn" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                break;
+
+                            case "banphim":
+                                <div id="banphimFields" class="product-fields">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Hãng</label>
+                                                <input name="HangBp" class="form-control" value="@ViewBag.HangBp" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Loại</label>
+                                                <input name="LoaiBp" class="form-control" value="@ViewBag.LoaiBp" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Kiểu kết nối</label>
+                                                <input name="KieuketnoiBp" class="form-control" value="@ViewBag.KieuketnoiBp" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Đèn LED</label>
+                                                <select name="DenledBp" class="form-select">
+                                                    <option value="true" selected="@(ViewBag.DenledBp == true)">Có</option>
+                                                    <option value="false" selected="@(ViewBag.DenledBp == false)">Không</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Xuất xứ</label>
+                                                <input name="XuatxuBp" class="form-control" value="@ViewBag.XuatxuBp" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Ngày sản xuất</label>
+                                                <input name="NgaysanxuatBp" type="date" class="form-control"
+                                                    value="@(ViewBag.NgaysanxuatBp != null ? ((DateTime)ViewBag.NgaysanxuatBp).ToString("yyyy-MM-dd") : "")" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="control-label">Tình trạng</label>
+                                                <input name="TinhtrangBp" class="form-control" value="@ViewBag.TinhtrangBp" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                break;
+
+                            default:
+                                <p class="text-danger">Không tìm thấy thông tin chi tiết cho loại sản phẩm này.</p>
+                                break;
+                        }
+                    </div>
+                </div>
+
+                <!-- Hình ảnh -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">Hình ảnh sản phẩm</h6>
+                        <div class="form-group mb-3">
+                            <label class="control-label">Tải lên hình ảnh mới</label>
+                            <input type="file" name="images" multiple class="form-control" />
+                        </div> @if (Model.HinhAnh != null && Model.HinhAnh.Any())
+                        {
+                            <h6 class="text-primary mb-3">Hình ảnh hiện tại</h6>
+                            <div class="row">
+                                @foreach (var image in Model.HinhAnh)
+                                {
+                                    <div class="col-md-3 mb-3">
+                                        <div class="image-container position-relative" data-image="@image">
+                                            <img src="/images/@image" class="img-thumbnail" alt="Hình ảnh sản phẩm"
+                                                style="max-height: 150px; object-fit: contain;" loading="lazy">
+                                            <div class="image-controls">
+                                                <button type="button" class="btn btn-danger btn-sm delete-image"
+                                                    data-id="@Model.Id" data-image="@image">
+                                                    <i class="fas fa-trash"></i> Xóa
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-warning">Lưu thay đổi</button>
+                    <a asp-action="Index" asp-route-category="@Model.Loai?.ToLower()" class="btn btn-secondary">Quay
+                        lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <script>
+        $(document).ready(function () {
+            // Cấu hình Toast
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-bottom-right",
+                "timeOut": "3000"
+            };
+
+            $('.delete-image').click(function () {
+                var button = $(this);
+                var imageContainer = button.closest('.image-container');
+                var imageName = button.data('image');
+                var productId = button.data('id');
+                $.ajax({
+                    url: '/Admin/Product/DeleteImage',
+                    type: 'POST',
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    data: {
+                        productId: productId,
+                        imageName: imageName
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            imageContainer.fadeOut(3000, function () {
+                                $(this).remove();
+                            });
+                            toastr.success('Xóa ảnh thành công!');
+                        } else {
+                            toastr.error('Có lỗi khi xóa ảnh: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Có lỗi xảy ra khi xóa ảnh');
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<style>
+    .carousel-inner {
+        max-height: 400px;
+        overflow: hidden;
+        background-color: #fff9f5;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .carousel-item img {
+        max-height: 400px;
+        object-fit: contain;
+        width: auto !important;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 5%;
+        opacity: 0.8;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        height: 40px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .carousel-indicators {
+        bottom: -40px;
+    }
+
+    .carousel-indicators button {
+        background-color: #ffd6c4;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin: 0 5px;
+    }
+
+    .carousel-indicators .active {
+        background-color: #ff7f50;
+    }
+
+    .card {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: none;
+        border-radius: 12px;
+        background-color: #fff9f5;
+        margin-bottom: 2rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        background-color: #fff9f5;
+    }
+
+    dt {
+        font-weight: 600;
+        color: #2C3E50;
+        font-size: 0.95rem;
+    }
+
+    dd {
+        margin-bottom: 0.75rem;
+        color: #666666;
+        font-size: 0.95rem;
+    }
+
+    h6 {
+        color: #ff7f50;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #ffd6c4;
+        font-weight: 600;
+    }
+
+    .card-footer {
+        background-color: #fff0e6;
+        border-top: 1px solid #ffd6c4;
+        padding: 1rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary {
+        background-color: #ffd6c4;
+        border-color: #ffd6c4;
+        color: #ff7f50;
+    }
+
+    .btn-secondary:hover {
+        background-color: #ffc4ad;
+        border-color: #ffc4ad;
+        color: #ff7f50;
+    }
+
+    .btn-warning {
+        background-color: #ff7f50;
+        border-color: #ff7f50;
+        color: #ffffff;
+    }
+
+    .btn-warning:hover {
+        background-color: #ff6b3d;
+        border-color: #ff6b3d;
+        color: #ffffff;
+    }
+
+    .btn-danger {
+        background-color: #ff4d4d;
+        border-color: #ff4d4d;
+    }
+
+    .btn-danger:hover {
+        background-color: #ff3333;
+        border-color: #ff3333;
+    }
+
+    .alert {
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-success {
+        background-color: #e6fff2;
+        color: #006633;
+        border-left: 4px solid #00cc66;
+    }
+
+    .alert-danger {
+        background-color: #ffe6e6;
+        color: #cc0000;
+        border-left: 4px solid #ff4d4d;
+    }
+
+    .border-top {
+        border-top: 1px solid #ffd6c4 !important;
+        background-color: #fff0e6;
+    }
+
+    .card-title {
+        color: #5C4033;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .text-primary {
+        color: #ff7f50 !important;
+    }
+
+    .text-danger {
+        font-size: 0.875rem;
+    }
+
+    h2 {
+        color: #ff7f50;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #ff7f50;
+        box-shadow: 0 0 0 0.2rem rgba(255, 127, 80, 0.25);
+    }
+
+    .card>.card-body:first-child {
+        background-color: #fff0e6;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+    }
+
+    /* Style cho phần ảnh và controls */
+    .image-container {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .image-controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+
+    .delete-checkbox {
+        margin-right: 5px;
+    }
+
+    .delete-label {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #ff4d4d;
+        cursor: pointer;
+    }
+
+    .image-container img {
+        width: 100%;
+        height: 150px;
+        object-fit: contain;
+        border-radius: 4px;
+    }
+
+    .delete-checkbox:checked+.delete-label {
+        font-weight: bold;
+    }
+</style>

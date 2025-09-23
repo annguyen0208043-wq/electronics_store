@@ -1,0 +1,162 @@
+﻿/* Footer Styles */
+.footer {
+    background: linear-gradient(to right, #2c3e50, #3498db);
+    color: white;
+    padding: 60px 0 30px;
+    margin-top: 50px;
+}
+
+.footer h5 {
+    color: #f1c40f;
+    font-weight: 600;
+    margin-bottom: 25px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.footer h5:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    height: 2px;
+    background: #f1c40f;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links a {
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.footer-links a:hover {
+    color: #f1c40f;
+    transform: translateX(5px);
+}
+
+.footer-links i {
+    margin-right: 8px;
+    color: #f1c40f;
+}
+
+.contact-info p {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.contact-info i {
+    margin-right: 10px;
+    color: #f1c40f;
+    width: 20px;
+    text-align: center;
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.social-links a {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+    background: #f1c40f;
+    color: #2c3e50;
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px 0;
+    margin-top: 40px;
+    text-align: center;
+}
+
+.footer-bottom p {
+    margin: 0;
+    color: #ecf0f1;
+    font-size: 0.9rem;
+}
+
+/* Newsletter Form */
+.newsletter-form {
+    margin-top: 20px;
+}
+
+.newsletter-form .form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    margin-bottom: 10px;
+}
+
+.newsletter-form .form-control::placeholder {
+    color: #bdc3c7;
+}
+
+.newsletter-form .form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+}
+
+.newsletter-form .btn {
+    background: #f1c40f;
+    color: #2c3e50;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.newsletter-form .btn:hover {
+    background: #f39c12;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .footer {
+        text-align: center;
+        padding: 40px 0 20px;
+    }
+
+    .footer h5:after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .contact-info p {
+        justify-content: center;
+    }
+}

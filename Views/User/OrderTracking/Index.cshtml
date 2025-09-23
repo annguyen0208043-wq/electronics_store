@@ -1,0 +1,312 @@
+@model List<TechShop.ViewModels.OrderViewModel>
+
+@{
+    ViewData["Title"] = "Theo dõi đơn hàng";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+<style>
+    body {
+        background-color: #fff5e6;
+    }
+
+    .order-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .page-title {
+        color: #d35400;
+        margin-bottom: 30px;
+        font-weight: 600;
+        text-align: center;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .page-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(to right, #e67e22, #f39c12);
+    }
+
+    .order-item {
+        background: white;
+        border: none;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(230, 126, 34, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .order-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(230, 126, 34, 0.15);
+    }
+
+    .order-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #fff5e6;
+    }
+
+    .order-item-header h5 {
+        color: #d35400;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .order-date {
+        color: #e67e22;
+        font-size: 0.95rem;
+        margin: 15px 0;
+    }
+
+    .order-item-details {
+        margin: 20px 0;
+    }
+
+    .order-detail {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: #fff5e6;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        transition: background-color 0.3s ease;
+    }
+
+    .order-detail:hover {
+        background: #ffe0b3;
+    }
+
+    .order-detail img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        margin-right: 20px;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(230, 126, 34, 0.1);
+    }
+
+    .order-detail-info {
+        flex-grow: 1;
+    }
+
+    .order-detail-info p {
+        margin: 5px 0;
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: #d35400;
+        font-size: 1.1rem;
+    }
+
+    .product-details {
+        color: #e67e22;
+        font-size: 0.95rem;
+    }
+
+    .total-amount {
+        text-align: right;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #d35400;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px solid #fff5e6;
+    }
+
+    /* Status styles */
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .status-chua-thanh-toan {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-da-thanh-toan {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-dang-giao {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+
+    .status-da-giao {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .status-huy {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .empty-orders {
+        text-align: center;
+        padding: 50px 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(230, 126, 34, 0.1);
+    }
+
+    .empty-orders p {
+        color: #e67e22;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+
+    .btn-continue-shopping {
+        display: inline-block;
+        padding: 12px 25px;
+        background: linear-gradient(to right, #e67e22, #f39c12);
+        color: white;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-continue-shopping:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+        color: white;
+    }
+
+    .alert {
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        border: none;
+        box-shadow: 0 3px 10px rgba(230, 126, 34, 0.1);
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+</style>
+
+<div class="order-container">
+    <h2 class="page-title">Theo dõi đơn hàng</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        </div>
+    }
+
+    @if (Model.Any())
+    {
+        @foreach (var order in Model)
+        {
+            <div class="order-item">
+                <div class="order-item-header">
+                    <h5><i class="fas fa-shopping-bag me-2"></i>Mã đơn hàng: @order.OrderId</h5>
+                    <span class="status-badge @GetStatusClass(order.Status)">@GetStatusText(order.Status)</span>
+                </div>
+                <p class="order-date"><i class="far fa-calendar-alt me-2"></i>Ngày đặt hàng: @order.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                <div class="order-item-details">
+                    @foreach (var detail in order.OrderDetails)
+                    {
+                        <div class="order-detail">
+                            @{
+                                string imageUrl = detail.ImageUrl ?? "default.jpg";
+                                if (!string.IsNullOrEmpty(imageUrl) && imageUrl.StartsWith("/images/"))
+                                {
+                                    imageUrl = imageUrl.Replace("/images/", "");
+                                }
+                                string fullImagePath = string.IsNullOrEmpty(imageUrl) ? "/images/default.jpg" : $"/images/{imageUrl}";
+                            }
+                            <img src="@fullImagePath" alt="@detail.ProductName" loading="lazy" />
+                            <div class="order-detail-info">
+                                <p class="product-name">@detail.ProductName</p>
+                                <p class="product-details">
+                                    <i class="fas fa-shopping-cart me-2"></i>Số lượng: @detail.Quantity | 
+                                    <i class="fas fa-tag me-2"></i>Giá: @detail.Price.ToString("N0") VNĐ
+                                </p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="total-amount">
+                    <i class="fas fa-money-bill-wave me-2"></i>Tổng tiền: @order.TotalAmount.ToString("N0") VNĐ
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-orders">
+            <i class="fas fa-shopping-cart fa-3x mb-3" style="color: #7f8c8d;"></i>
+            <p>Bạn chưa có đơn hàng nào.</p>
+            <a href="@Url.Action("Index", "Product")" class="btn-continue-shopping">
+                <i class="fas fa-arrow-right me-2"></i>Tiếp tục mua sắm
+            </a>
+        </div>
+    }
+</div>
+
+@functions {
+    public string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Pending" => "Chưa thanh toán",
+            "Confirmed" => "Đã thanh toán",
+            "Shipped" => "Đang giao",
+            "Delivered" => "Đã giao",
+            "Cancelled" => "Hủy",
+            _ => status
+        };
+    }
+
+    public string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "status-chua-thanh-toan",
+            "Confirmed" => "status-da-thanh-toan",
+            "Shipped" => "status-dang-giao",
+            "Delivered" => "status-da-giao",
+            "Cancelled" => "status-huy",
+            _ => ""
+        };
+    }
+} 

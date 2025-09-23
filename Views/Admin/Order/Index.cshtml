@@ -1,0 +1,257 @@
+﻿@model IEnumerable<TechShop.Models.Order>
+
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
+<style>
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-table th,
+    .order-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+
+    .order-table th {
+        background-color: #4a90e2;
+        color: white;
+        font-weight: bold;
+    }
+
+    .order-table tr {
+        transition: background-color 0.3s;
+    }
+
+    .order-table tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    /* CSS cho trạng thái với background-color */
+    .status-chua-thanh-toan {
+        background-color: #ff9800;
+        /* Cam nhạt */
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        display: inline-block;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .status-da-thanh-toan {
+        background-color: #4caf50;
+        /* Xanh lá nhạt */
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        display: inline-block;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .status-dang-giao {
+        background-color: #2196f3;
+        /* Xanh dương nhạt */
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        display: inline-block;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .status-da-giao {
+        background-color: #2e7d32;
+        /* Xanh lá đậm */
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        display: inline-block;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .status-huy {
+        background-color: #f44336;
+        /* Đỏ nhạt */
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        display: inline-block;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    /* Hiệu ứng hover cho trạng thái */
+    .status-chua-thanh-toan:hover,
+    .status-da-thanh-toan:hover,
+    .status-dang-giao:hover,
+    .status-da-giao:hover,
+    .status-huy:hover {
+        /* Phóng to nhẹ khi hover */
+        background-color: darken(@@background -color, 10%);
+        /* Tối màu khi hover (giả định, cần xử lý bằng SCSS nếu muốn) */
+    }
+
+    .btn {
+        border-radius: 5px;
+        padding: 6px 12px;
+        text-decoration: none;
+        color: white;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .btn-sm {
+        font-size: 14px;
+    }
+
+    .alert {
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    .filter-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .filter-section select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-right: 10px;
+        min-width: 200px;
+    }
+
+    .filter-section button {
+        padding: 8px 20px;
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .filter-section button:hover {
+        background-color: #357abd;
+    }
+</style>
+
+<div class="container-fluid">
+    <h2 class="mb-4">Quản lý đơn hàng</h2>
+
+    <div class="filter-section">
+        <form method="get" asp-action="Index" class="d-flex align-items-center">
+            <select name="status" class="form-control">
+                <option value="">Tất cả trạng thái</option>
+                <option value="Pending">Chưa thanh toán</option>
+                <option value="Confirmed">Đã thanh toán</option>
+                <option value="Shipped">Đang giao</option>
+                <option value="Delivered">Đã giao</option>
+                <option value="Cancelled">Hủy</option>
+            </select>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i> Lọc
+            </button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn hàng</th>
+                            <th>Mã tài khoản</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td>@order.OrderId</td>
+                                <td>@order.UserId</td>
+                                <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@order.TotalAmount.ToString("N0") VNĐ</td>
+                                <td><span class="@GetStatusClass(order.Status)">@GetStatusText(order.Status)</span></td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-primary btn-sm">Chi tiết</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Lấy giá trị status từ URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            
+            // Set giá trị đã chọn cho select box
+            if (status) {
+                $('select[name="status"]').val(status);
+            }
+        });
+    </script>
+}
+
+@functions {
+    public string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Pending" => "Chưa thanh toán",
+            "Confirmed" => "Đã thanh toán",
+            "Shipped" => "Đang giao",
+            "Delivered" => "Đã giao",
+            "Cancelled" => "Hủy",
+            _ => status
+        };
+    }
+
+    public string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "status-chua-thanh-toan",
+            "Confirmed" => "status-da-thanh-toan",
+            "Shipped" => "status-dang-giao",
+            "Delivered" => "status-da-giao",
+            "Cancelled" => "status-huy",
+            _ => ""
+        };
+    }
+}
